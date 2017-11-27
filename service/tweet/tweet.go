@@ -1,14 +1,17 @@
-package service
+package tweet
 
 import (
 	"errors"
-	"github.com/evilGopher/domain"
 	"time"
+	"github.com/evilGopher/service/user"
 )
 
-var tweets []*domain.Tweet
+var tweets []*Tweet
 
-func PublishTweet(tweet *domain.Tweet) error {
+
+func PublishTweet(tweet *Tweet) error {
+
+
 
 	if tweet.User.Name == "" {
 		return errors.New("user is required")
@@ -16,6 +19,10 @@ func PublishTweet(tweet *domain.Tweet) error {
 
 	if tweet.Text == "" {
 		return errors.New("text is required")
+	}
+
+	if !user.Exists(tweet.User) {
+		return errors.New("user must be registered in order to publish tweets")
 	}
 
 	tweets = append(tweets, tweet)
@@ -26,7 +33,7 @@ func GetTweetsAsString() []string {
 	return tweetToString(tweets)
 }
 
-func GetTweets() []*domain.Tweet {
+func GetTweets() []*Tweet {
 	return tweets
 }
 
@@ -34,7 +41,7 @@ func RemoveTweet(tweet string) {
 	tweets = removeIndex(tweets, tweet)
 }
 
-func removeIndex(s []*domain.Tweet, removeTweet string) []*domain.Tweet {
+func removeIndex(s []*Tweet, removeTweet string) []*Tweet {
 
 	for i,tweet := range tweets {
 
@@ -46,7 +53,7 @@ func removeIndex(s []*domain.Tweet, removeTweet string) []*domain.Tweet {
 }
 
 
-func tweetToString (tweets []*domain.Tweet) []string {
+func tweetToString (tweets []*Tweet) []string {
 	var result []string
 	for _,tweet := range tweets {
 		result = append(result, tweet.User.Name + " said: " + tweet.Text  + " at: " + string(tweet.Date.Format(time.UnixDate)) + "\n")
