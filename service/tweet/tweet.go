@@ -9,7 +9,7 @@ import (
 var tweets []*Tweet
 
 
-func PublishTweet(tweet *Tweet) error {
+func Publish(tweet *Tweet) error {
 
 
 
@@ -29,15 +29,15 @@ func PublishTweet(tweet *Tweet) error {
 	return nil
 }
 
-func GetTweetsAsString() []string {
-	return tweetToString(tweets)
+func GetAllAsString() []string {
+	return toString(tweets)
 }
 
-func GetTweets() []*Tweet {
+func GetAll() []*Tweet {
 	return tweets
 }
 
-func RemoveTweet(tweet string) {
+func Remove(tweet string) {
 	tweets = removeIndex(tweets, tweet)
 }
 
@@ -53,7 +53,7 @@ func removeIndex(s []*Tweet, removeTweet string) []*Tweet {
 }
 
 
-func tweetToString (tweets []*Tweet) []string {
+func toString(tweets []*Tweet) []string {
 	var result []string
 	for _,tweet := range tweets {
 		result = append(result, tweet.User.Name + " said: " + tweet.Text  + " at: " + string(tweet.Date.Format(time.UnixDate)) + "\n")

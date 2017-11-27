@@ -6,26 +6,26 @@ import (
 	"github.com/evilGopher/service/user"
 )
 
-func TestPublishTweetIsSaved(t *testing.T) {
+func TestPublishIsSaved(t *testing.T) {
 
 	// Initialization
 	var tweetMessage *tweet.Tweet
 
-	testUser := user.NewUser("grupoesfera")
+	testUser := user.New("grupoesfera")
 	text := "This is my first tweetMessage"
 
-	tweetMessage = tweet.NewTweet(testUser, text)
+	tweetMessage = tweet.New(testUser, text)
 
 	// Operation
 	user.Create(testUser)
-	err := tweet.PublishTweet(tweetMessage)
+	err := tweet.Publish(tweetMessage)
 
 	// Validation
 	if err != nil {
 		t.Errorf("Didn't expect any error, but got: %s", err.Error())
 	}
 
-	publishedTweet := tweet.GetTweets()[0]
+	publishedTweet := tweet.GetAll()[0]
 
 	if publishedTweet.User != testUser &&
 		publishedTweet.Text != text {
@@ -38,11 +38,11 @@ func TestPublishTweetIsSaved(t *testing.T) {
 	}
 }
 
-func TestPublishTweetWithoutUserOrTextError(t *testing.T) {
+func TestPublishWithoutUserOrTextError(t *testing.T) {
 
-	tweetMessage := tweet.NewTweet(user.NewUser(""), "Some tweet")
+	tweetMessage := tweet.New(user.New(""), "Some tweet")
 
-	err := tweet.PublishTweet(tweetMessage)
+	err := tweet.Publish(tweetMessage)
 
 	if err == nil {
 		t.Error("error was expected")
@@ -52,9 +52,9 @@ func TestPublishTweetWithoutUserOrTextError(t *testing.T) {
 		t.Errorf("expected error: user is required, but was %s", err.Error())
 	}
 
-	tweetMessage = tweet.NewTweet(user.NewUser("caetano"), "")
+	tweetMessage = tweet.New(user.New("caetano"), "")
 
-	err = tweet.PublishTweet(tweetMessage)
+	err = tweet.Publish(tweetMessage)
 
 	if err == nil {
 		t.Error("error was expected")
@@ -66,18 +66,18 @@ func TestPublishTweetWithoutUserOrTextError(t *testing.T) {
 
 }
 
-func TestPublishTweetWithoutRegisteredUser(t *testing.T) {
+func TestPublishWithoutRegisteredUser(t *testing.T) {
 
 	// Initialization
 	var tweetMessage *tweet.Tweet
 
-	user := user.NewUser("grupoesfera")
+	user := user.New("grupoesfera")
 	text := "This is my first tweet"
 
-	tweetMessage = tweet.NewTweet(user, text)
+	tweetMessage = tweet.New(user, text)
 
 	// Operation
-	err := tweet.PublishTweet(tweetMessage)
+	err := tweet.Publish(tweetMessage)
 
 	// Validation
 	if err.Error() == "" {

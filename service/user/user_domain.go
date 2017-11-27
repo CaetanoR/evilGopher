@@ -13,6 +13,6 @@ func (u *User) Follow(user *User) {
 	user.Followers = append(user.Followers, u)
 }
 
-func NewUser(name string) *User {
+func New(name string) *User {
 	return &User{name, nil, nil}
 }

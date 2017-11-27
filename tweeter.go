@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/abiosoft/ishell"
-	"github.com/evilGopher/service"
-	"github.com/evilGopher/domain"
+	"github.com/evilGopher/service/user"
+	"github.com/evilGopher/service/tweet"
 )
 
 func main() {
@@ -20,12 +20,12 @@ func main() {
 			defer c.ShowPrompt(true)
 
 			c.Print("¿Who are you? ")
-			user := c.ReadLine()
+			currentUser := c.ReadLine()
 			c.Print("Write your tweet: ")
 			text := c.ReadLine()
 
-			tweet := domain.NewTweet(domain.User{user}, text)
-			err := service.PublishTweet(tweet)
+			currentTweet := tweet.New(user.New(currentUser), text)
+			err := tweet.Publish(currentTweet)
 
 			if err != nil {
 				c.Println(err.Error())
@@ -45,7 +45,7 @@ func main() {
 
 			defer c.ShowPrompt(true)
 
-			c.Println(service.GetTweetsAsString())
+			c.Println(tweet.GetAllAsString())
 
 			return
 		},
@@ -61,8 +61,8 @@ func main() {
 
 			c.Print("Tweet to remove: ")
 
-			service.RemoveTweet(c.ReadLine())
-			c.Println(service.GetTweets())
+			tweet.Remove(c.ReadLine())
+			c.Println(tweet.GetAll())
 
 			return
 		},

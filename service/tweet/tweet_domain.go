@@ -13,7 +13,7 @@ type Tweet struct {
 
 }
 
-func NewTweet(user *user.User, text string) *Tweet {
+func New(user *user.User, text string) *Tweet {
 	tiempo := time.Now()
 	return &Tweet{user, text, &(tiempo)}
 }
