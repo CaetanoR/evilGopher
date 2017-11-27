@@ -4,12 +4,18 @@ import "time"
 
 type Tweet struct {
 
-	User string
+	User User
 	Text string
 	Date *time.Time
 }
 
-func NewTweet(user, text string) *Tweet {
+type User struct {
+
+	Name string
+
+}
+
+func NewTweet(user User, text string) *Tweet {
 	tiempo := time.Now()
 	return &Tweet{user, text, &(tiempo)}
 }

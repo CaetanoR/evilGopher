@@ -11,15 +11,19 @@ func TestPublishTweetIsSaved(t *testing.T) {
 	// Initialization
 	var tweet *domain.Tweet
 
-	user := "grupoesfera"
+	user := domain.User{"grupoesfera"}
 	text := "This is my first tweet"
 
 	tweet = domain.NewTweet(user, text)
 
 	// Operation
-	service.PublishTweet(tweet)
+	err := service.PublishTweet(tweet)
 
 	// Validation
+	if err != nil {
+		t.Errorf("Didn't expect any error, but got: %s", err.Error())
+	}
+
 	publishedTweet := service.GetTweets()[0]
 
 	if publishedTweet.User != user &&
@@ -31,4 +35,32 @@ func TestPublishTweetIsSaved(t *testing.T) {
 	if publishedTweet.Date == nil {
 		t.Error("Expected date can't be nil")
 	}
+}
+
+func TestPublishTweetWithoutUserOrTextError(t *testing.T) {
+
+	tweet := domain.NewTweet(domain.User{""}, "Some tweet")
+
+	err := service.PublishTweet(tweet)
+
+	if err == nil {
+		t.Error("error was expected")
+	}
+
+	if err.Error() != "user is required" {
+		t.Errorf("expected error: user is required, but was %s", err.Error())
+	}
+
+	tweet = domain.NewTweet(domain.User{"caetano"}, "")
+
+	err = service.PublishTweet(tweet)
+
+	if err == nil {
+		t.Error("error was expected")
+	}
+
+	if err.Error() != "text is required" {
+		t.Errorf("expected error: text is required, but was %s", err.Error())
+	}
+
 }

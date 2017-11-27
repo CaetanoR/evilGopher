@@ -1,15 +1,25 @@
 package service
 
 import (
-	"fmt"
+	"errors"
 	"github.com/evilGopher/domain"
 	"time"
 )
 
 var tweets []*domain.Tweet
 
-func PublishTweet(tweet *domain.Tweet) {
+func PublishTweet(tweet *domain.Tweet) error {
+
+	if tweet.User.Name == "" {
+		return errors.New("user is required")
+	}
+
+	if tweet.Text == "" {
+		return errors.New("text is required")
+	}
+
 	tweets = append(tweets, tweet)
+	return nil
 }
 
 func GetTweetsAsString() []string {
@@ -21,11 +31,6 @@ func GetTweets() []*domain.Tweet {
 }
 
 func RemoveTweet(tweet string) {
-	defer func() {
-		if recover() != nil {
-			fmt.Println("array index out of bounds")
-		}
-	}()
 	tweets = removeIndex(tweets, tweet)
 }
 
@@ -44,7 +49,7 @@ func removeIndex(s []*domain.Tweet, removeTweet string) []*domain.Tweet {
 func tweetToString (tweets []*domain.Tweet) []string {
 	var result []string
 	for _,tweet := range tweets {
-		result = append(result, tweet.User + " said: " + tweet.Text  + " at: " + string(tweet.Date.Format(time.UnixDate)) + "\n")
+		result = append(result, tweet.User.Name + " said: " + tweet.Text  + " at: " + string(tweet.Date.Format(time.UnixDate)) + "\n")
 	}
 	return result
 }
