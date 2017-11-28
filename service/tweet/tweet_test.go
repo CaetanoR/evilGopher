@@ -139,3 +139,27 @@ func TestGetById(t *testing.T) {
 	}
 
 }
+
+func TestFollowUser(t *testing.T) {
+	// Initialization
+
+	var userService user.Service
+
+	userService.Initialize()
+	tweet.Initialize()
+
+	testUser := domain.NewUser("grupoesfera", &userService)
+	testUserToFollow := domain.NewUser("grupoesfera", &userService)
+
+	userService.RegisterUser(testUser)
+	userService.RegisterUser(testUserToFollow)
+
+	testUser.Follow(testUserToFollow)
+
+	if testUser.Following[testUserToFollow] == false {
+		t.Errorf("User should be following the second used")
+	}
+	if testUserToFollow.Followers[testUser] == false {
+		t.Errorf("The second user should be followed by the first user")
+	}
+}

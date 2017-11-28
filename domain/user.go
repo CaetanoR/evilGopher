@@ -14,6 +14,13 @@ type User struct {
 }
 
 func (u *User) Follow(user *User) {
+	if u.Following == nil {
+		u.Following = make(map[*User]bool)
+	}
+
+	if user.Followers == nil {
+		user.Followers = make(map[*User]bool)
+	}
 	u.Following[user] = true
 	user.Followers[u] = true
 }
