@@ -7,6 +7,10 @@ import (
 
 var tweets []*domain.Tweet
 
+func Initialize() {
+	tweets = make([]*domain.Tweet, 0)
+}
+
 func GetAllAsString() []string {
 	return toString(tweets)
 }

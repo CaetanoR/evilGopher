@@ -12,18 +12,20 @@ func TestPublishIsSaved(t *testing.T) {
 	// Initialization
 	var tweetMessage *domain.Tweet
 
-	var service user.Service
+	var userService user.Service
 
-	service.Initialize()
 
-	testUser := domain.NewUser("grupoesfera", &service)
+	userService.Initialize()
+	tweet.Initialize()
+
+	testUser := domain.NewUser("grupoesfera", &userService)
 	text := "This is my first tweetMessage"
 
-	tweetMessage = domain.NewTweet(testUser, text)
+	tweetMessage,_ = domain.NewTweet(testUser, text)
 
 	// Operation
-	service.RegisterUser(testUser)
-	err := service.Tweet(testUser, tweetMessage)
+	userService.RegisterUser(testUser)
+	err := userService.Tweet(testUser, tweetMessage)
 
 	// Validation
 	if err != nil {
@@ -45,13 +47,16 @@ func TestPublishIsSaved(t *testing.T) {
 
 func TestPublishWithoutTextError(t *testing.T) {
 
-	var service user.Service
+	var userService user.Service
 
-	testUser := domain.NewUser("caetano", &service)
+	userService.Initialize()
+	tweet.Initialize()
 
-	tweetMessage := domain.NewTweet(testUser, "")
+	testUser := domain.NewUser("caetano", &userService)
 
-	err := service.Tweet(testUser, tweetMessage)
+	tweetMessage,_ := domain.NewTweet(testUser, "")
+
+	err := userService.Tweet(testUser, tweetMessage)
 
 	if err == nil {
 		t.Error("error was expected")
@@ -67,15 +72,18 @@ func TestPublishWithoutRegisteredUser(t *testing.T) {
 
 	// Initialization
 	var tweetMessage *domain.Tweet
-	var service user.Service
+	var userService user.Service
 
-	testUser := domain.NewUser("grupoesfera", &service)
+	userService.Initialize()
+	tweet.Initialize()
+
+	testUser := domain.NewUser("grupoesfera", &userService)
 	text := "This is my first tweet"
 
-	tweetMessage = domain.NewTweet(testUser, text)
+	tweetMessage,_ = domain.NewTweet(testUser, text)
 
 	// Operation
-	err := service.Tweet(testUser, tweetMessage)
+	err := userService.Tweet(testUser, tweetMessage)
 
 	// Validation
 	if err.Error() == "" {
@@ -92,29 +100,36 @@ func TestGetById(t *testing.T) {
 
 	// Initialization
 
-	var service user.Service
+	var userService user.Service
 
-	testUser := domain.NewUser("grupoesfera", &service)
+	userService.Initialize()
+	tweet.Initialize()
+
+	testUser := domain.NewUser("grupoesfera", &userService)
 
 	messages := []string{"This is my first tweetMessage", "This is my second tweetMessage", "This is my third tweetMessage"}
 
-	var tweets []*domain.Tweet
+	testTweets := make([]*domain.Tweet, 0)
+
+	tweetsIds := make([]uint64, 0)
 
 	for _, message := range messages {
-		tweets = append(tweets, domain.NewTweet(testUser, message))
+		newTweet, id := domain.NewTweet(testUser, message)
+		testTweets = append(testTweets, newTweet)
+		tweetsIds = append(tweetsIds, id)
 	}
 
 	// Operation
-	service.RegisterUser(testUser)
+	userService.RegisterUser(testUser)
 
-	for i,curTweet := range tweets {
-		err := service.Tweet(testUser, curTweet)
+	for i,curTweet := range testTweets {
+		err := userService.Tweet(testUser, curTweet)
 		// Validation
 		if err != nil {
 			t.Errorf("Didn't expect any error, but got: %s", err.Error())
 		}
 
-		publishedTweet := tweet.GetById(uint64(i+1))
+		publishedTweet := tweet.GetById(tweetsIds[i])
 
 		if publishedTweet.User != curTweet.User ||
 			publishedTweet.Text != curTweet.Text {
