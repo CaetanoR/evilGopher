@@ -2,11 +2,24 @@ package user
 
 import (
 	"errors"
+	"github.com/evilGopher/domain"
+	"github.com/evilGopher/service/tweet"
 )
 
-var users []*User
+var users []*domain.User
 
-func Create(user *User) error {
+type Service struct {
+}
+
+func (s *Service) Initialize() {
+	users = []*domain.User{}
+}
+
+func (s *Service) Users() ([]*domain.User) {
+	return users
+}
+
+func (s *Service) RegisterUser(user *domain.User) error {
 
 	if user.Name == "" {
 		return errors.New("name is required")
@@ -16,7 +29,7 @@ func Create(user *User) error {
 	return nil
 }
 
-func Exists(userToSearch *User) bool{
+func (s *Service) Exists(userToSearch *domain.User) bool {
 	exists := false
 	for _,user := range users {
 		if userToSearch == user {
@@ -24,4 +37,12 @@ func Exists(userToSearch *User) bool{
 		}
 	}
 	return exists
+}
+
+func (s *Service) Tweet(u *domain.User, t *domain.Tweet) error {
+	err := u.PublishTweet(t)
+	if err == nil {
+		tweet.AddTweet(t)
+	}
+	return err
 }

@@ -4,21 +4,26 @@ import (
 	"testing"
 	"github.com/evilGopher/service/tweet"
 	"github.com/evilGopher/service/user"
+	"github.com/evilGopher/domain"
 )
 
 func TestPublishIsSaved(t *testing.T) {
 
 	// Initialization
-	var tweetMessage *tweet.Tweet
+	var tweetMessage *domain.Tweet
 
-	testUser := user.New("grupoesfera")
+	var service user.Service
+
+	service.Initialize()
+
+	testUser := domain.NewUser("grupoesfera", &service)
 	text := "This is my first tweetMessage"
 
-	tweetMessage = tweet.New(testUser, text)
+	tweetMessage = domain.NewTweet(testUser, text)
 
 	// Operation
-	user.Create(testUser)
-	err := tweet.Publish(tweetMessage)
+	service.RegisterUser(testUser)
+	err := service.Tweet(testUser, tweetMessage)
 
 	// Validation
 	if err != nil {
@@ -38,23 +43,15 @@ func TestPublishIsSaved(t *testing.T) {
 	}
 }
 
-func TestPublishWithoutUserOrTextError(t *testing.T) {
+func TestPublishWithoutTextError(t *testing.T) {
 
-	tweetMessage := tweet.New(user.New(""), "Some tweet")
+	var service user.Service
 
-	err := tweet.Publish(tweetMessage)
+	testUser := domain.NewUser("caetano", &service)
 
-	if err == nil {
-		t.Error("error was expected")
-	}
+	tweetMessage := domain.NewTweet(testUser, "")
 
-	if err.Error() != "user is required" {
-		t.Errorf("expected error: user is required, but was %s", err.Error())
-	}
-
-	tweetMessage = tweet.New(user.New("caetano"), "")
-
-	err = tweet.Publish(tweetMessage)
+	err := service.Tweet(testUser, tweetMessage)
 
 	if err == nil {
 		t.Error("error was expected")
@@ -69,15 +66,16 @@ func TestPublishWithoutUserOrTextError(t *testing.T) {
 func TestPublishWithoutRegisteredUser(t *testing.T) {
 
 	// Initialization
-	var tweetMessage *tweet.Tweet
+	var tweetMessage *domain.Tweet
+	var service user.Service
 
-	user := user.New("grupoesfera")
+	testUser := domain.NewUser("grupoesfera", &service)
 	text := "This is my first tweet"
 
-	tweetMessage = tweet.New(user, text)
+	tweetMessage = domain.NewTweet(testUser, text)
 
 	// Operation
-	err := tweet.Publish(tweetMessage)
+	err := service.Tweet(testUser, tweetMessage)
 
 	// Validation
 	if err.Error() == "" {
@@ -85,7 +83,44 @@ func TestPublishWithoutRegisteredUser(t *testing.T) {
 	}
 
 	if err.Error() != "user must be registered in order to publish tweets" {
-		t.Errorf("expected error: user must be registered in order to publish tweets, but was: %s", err.Error())
+		t.Errorf("expected error: testUser must be registered in order to publish tweets, but was: %s", err.Error())
+	}
+
+}
+
+func TestGetById(t *testing.T) {
+
+	// Initialization
+
+	var service user.Service
+
+	testUser := domain.NewUser("grupoesfera", &service)
+
+	messages := []string{"This is my first tweetMessage", "This is my second tweetMessage", "This is my third tweetMessage"}
+
+	var tweets []*domain.Tweet
+
+	for _, message := range messages {
+		tweets = append(tweets, domain.NewTweet(testUser, message))
+	}
+
+	// Operation
+	service.RegisterUser(testUser)
+
+	for i,curTweet := range tweets {
+		err := service.Tweet(testUser, curTweet)
+		// Validation
+		if err != nil {
+			t.Errorf("Didn't expect any error, but got: %s", err.Error())
+		}
+
+		publishedTweet := tweet.GetById(uint64(i+1))
+
+		if publishedTweet.User != curTweet.User ||
+			publishedTweet.Text != curTweet.Text {
+			t.Errorf("Expected tweetMessage is %s: %s \nbut is %s: %s",
+				curTweet.User, curTweet.Text, publishedTweet.User, publishedTweet.Text)
+		}
 	}
 
 }
