@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"log"
+	"github.com/evilGopher/service/tweet"
 )
 
 type User struct {
@@ -31,20 +32,52 @@ func (u *User) Follow(user *User) {
 
 func (u *User) PublishTweet(tweetToPublish *Tweet) error {
 
-	if tweetToPublish.User.Name == "" {
+	err := u.validateUserTweet(tweetToPublish)
+	u.Tweets = append(u.Tweets, tweetToPublish)
+	return err
+}
+
+func (u *User) EditTweet(tweetToEdit *Tweet) error {
+	err := u.validateUserTweet(tweetToEdit)
+	if err == nil {
+		err = u.validateIndex(tweetToEdit)
+	}
+	if err == nil {
+		u.Tweets[tweetToEdit.Id].Text = tweetToEdit.Text
+	}
+	return err
+}
+
+func (u *User) RemoveTweet(tweetToRemove *Tweet) error {
+	err := u.validateUserTweet(tweetToRemove)
+	if err == nil {
+		err = u.validateIndex(tweetToRemove)
+	}
+	if err == nil {
+		u.Tweets = append(u.Tweets[:tweetToRemove.Id], u.Tweets[tweetToRemove.Id+1:]...)
+	}
+	return err
+}
+
+func (u *User)validateIndex(tweet *Tweet) error {
+	if 0 < tweet.Id && tweet.Id < uint64(len(u.Tweets)) {
+		return nil
+	}
+	return errors.New("Index out of bounds")
+}
+
+func (u *User)validateUserTweet(tweet *Tweet) error {
+	if tweet.User.Name == "" {
 		return errors.New("user is required")
 	}
 
-	if tweetToPublish.Text == "" {
+	if tweet.Text == "" {
 		return errors.New("text is required")
 	}
 
-	if !u.service.Exists(tweetToPublish.User) {
+	if !u.service.Exists(tweet.User) {
 		return errors.New("user must be registered in order to publish tweets")
 	}
-
-	u.Tweets = append(u.Tweets, tweetToPublish)
-	return nil
 }
 
 func NewUser(name string, email string, nick string, pass string, service UserService) *User {

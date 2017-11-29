@@ -63,3 +63,19 @@ func (s *Service) Tweet(u *domain.User, t *domain.Tweet) error {
 	}
 	return err
 }
+
+func (s *Service) EditTweet(u *domain.User, t *domain.Tweet) error {
+	err := u.EditTweet(t)
+	if err == nil {
+		tweet.EditTweet(t)
+	}
+	return err
+}
+
+func (s *Service) RemoveTweet(u *domain.User, t *domain.Tweet) error {
+	err := u.RemoveTweet(t)
+	if err == nil {
+		tweet.Remove(t.Text)
+	}
+	return err
+}

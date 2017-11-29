@@ -43,6 +43,10 @@ func Remove(tweet string) {
 	tweets = removeIndex(tweets, tweet)
 }
 
+func EditTweet(tweetToEdit *domain.Tweet){
+	tweets[tweetToEdit.Id].Text = tweetToEdit.Text
+}
+
 func removeIndex(s []*domain.Tweet, removeTweet string) []*domain.Tweet {
 
 	for i,tweet := range tweets {
