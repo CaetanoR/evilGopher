@@ -44,7 +44,7 @@ func Remove(tweet string) {
 }
 
 func EditTweet(tweetToEdit *domain.Tweet){
-	tweets[tweetToEdit.Id].Text = tweetToEdit.Text
+	tweets[tweetToEdit.Id - 1].Text = tweetToEdit.Text
 }
 
 func removeIndex(s []*domain.Tweet, removeTweet string) []*domain.Tweet {
