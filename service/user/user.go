@@ -7,17 +7,19 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var users []*domain.User
+var registeredUsers []*domain.User
+var loggedUsers []*domain.User
 
 type Service struct {
 }
 
 func (s *Service) Initialize() {
-	users = []*domain.User{}
+	registeredUsers = []*domain.User{}
+	loggedUsers = []*domain.User{}
 }
 
 func (s *Service) Users() ([]*domain.User) {
-	return users
+	return registeredUsers
 }
 
 func (s *Service) HashPassword(pwd string) (string, error) {
@@ -30,33 +32,50 @@ func (s *Service) CheckHash(pwd string, hash string) bool {
 	return err == nil
 }
 
-func (s *Service) RegisterUser(user *domain.User) error {
+func (s *Service) RegisterUser(u *domain.User) error {
 
-	if user.Name == "" {
+	if u.Name == "" {
 		return errors.New("name is required")
 	}
 
-	for _, curUser := range users {
-		if user.Name == curUser.Name || user.Email == curUser.Email {
+	for _, curUser := range registeredUsers {
+		if u.Name == curUser.Name || u.Email == curUser.Email {
 			return errors.New("user already exists")
 		}
 	}
 
-	users = append(users, user)
+	registeredUsers = append(registeredUsers, u)
 	return nil
 }
 
-func (s *Service) Exists(userToSearch *domain.User) bool {
-	exists := false
-	for _,user := range users {
-		if userToSearch == user {
-			exists = true
+func (s *Service) LogIn(userName string, password string) error {
+	userToLogIn := s.Exists(userName, registeredUsers)
+	if userToLogIn == nil {
+		return errors.New("user doesn't exist")
+	}
+	if !s.CheckHash(password, userToLogIn.Password) {
+		return errors.New("invalid password")
+	}
+	loggedUsers = append(loggedUsers, userToLogIn)
+	return nil
+}
+
+func (s *Service) Exists(userToSearch string, userList []*domain.User) *domain.User {
+	var user *domain.User = nil
+	for _,curUser := range userList {
+		if userToSearch == curUser.Name {
+			user = curUser
 		}
 	}
-	return exists
+	return user
 }
 
 func (s *Service) Tweet(u *domain.User, t *domain.Tweet) error {
+
+	if s.Exists(u.Name, loggedUsers) == nil {
+		return errors.New("user must be logged in order to publish tweets")
+	}
+
 	err := u.PublishTweet(t)
 	if err == nil {
 		tweet.AddTweet(t)

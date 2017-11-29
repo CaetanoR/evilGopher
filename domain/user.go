@@ -39,10 +39,6 @@ func (u *User) PublishTweet(tweetToPublish *Tweet) error {
 		return errors.New("text is required")
 	}
 
-	if !u.service.Exists(tweetToPublish.User) {
-		return errors.New("user must be registered in order to publish tweets")
-	}
-
 	u.Tweets = append(u.Tweets, tweetToPublish)
 	return nil
 }
@@ -60,7 +56,8 @@ type UserService interface {
 	HashPassword(pwd string) (string, error)
 	CheckHash(pwd string, hash string) bool
 	RegisterUser(u *User) error
-	Exists(u *User) bool
+	LogIn(userName string, password string) error
+	Exists(u string, userList[]*User) *User
 	Tweet(u* User, t *Tweet) error
 }
 
