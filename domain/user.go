@@ -2,11 +2,15 @@ package domain
 
 import (
 	"errors"
+	"log"
 )
 
 type User struct {
 
 	Name string
+	Email string
+	Nick string
+	Password string
 	Following map[*User]bool
 	Followers map[*User]bool
 	Tweets []*Tweet
@@ -43,12 +47,18 @@ func (u *User) PublishTweet(tweetToPublish *Tweet) error {
 	return nil
 }
 
-func NewUser(name string, service UserService) *User {
-	return &User{name, nil, nil, nil, service}
+func NewUser(name string, email string, nick string, pass string, service UserService) *User {
+	hashedPassword, err := service.HashPassword(pass)
+	if err != nil {
+		log.Fatalf("Error hashing password: %s", err.Error())
+	}
+	return &User{name, email, nick, hashedPassword, nil,nil, make([]*Tweet, 0), service}
 }
 
 type UserService interface {
 	Users() ([]*User)
+	HashPassword(pwd string) (string, error)
+	CheckHash(pwd string, hash string) bool
 	RegisterUser(u *User) error
 	Exists(u *User) bool
 	Tweet(u* User, t *Tweet) error

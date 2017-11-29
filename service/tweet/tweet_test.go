@@ -18,7 +18,7 @@ func TestPublishIsSaved(t *testing.T) {
 	userService.Initialize()
 	tweet.Initialize()
 
-	testUser := domain.NewUser("grupoesfera", &userService)
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
 	text := "This is my first tweetMessage"
 
 	tweetMessage,_ = domain.NewTweet(testUser, text)
@@ -45,6 +45,25 @@ func TestPublishIsSaved(t *testing.T) {
 	}
 }
 
+func TestPasswordHash(t *testing.T) {
+
+	// Initialization
+	var userService user.Service
+
+	userService.Initialize()
+	tweet.Initialize()
+
+	userPassword := "grupoesfera1234"
+
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", userPassword, &userService)
+
+	if !userService.CheckHash(userPassword, testUser.Password) {
+		t.Error("Password isn't beint hashed correctly")
+	}
+
+}
+
+
 func TestPublishWithoutTextError(t *testing.T) {
 
 	var userService user.Service
@@ -52,7 +71,7 @@ func TestPublishWithoutTextError(t *testing.T) {
 	userService.Initialize()
 	tweet.Initialize()
 
-	testUser := domain.NewUser("caetano", &userService)
+	testUser := domain.NewUser("caetano","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
 
 	tweetMessage,_ := domain.NewTweet(testUser, "")
 
@@ -77,7 +96,7 @@ func TestPublishWithoutRegisteredUser(t *testing.T) {
 	userService.Initialize()
 	tweet.Initialize()
 
-	testUser := domain.NewUser("grupoesfera", &userService)
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
 	text := "This is my first tweet"
 
 	tweetMessage,_ = domain.NewTweet(testUser, text)
@@ -105,7 +124,7 @@ func TestGetById(t *testing.T) {
 	userService.Initialize()
 	tweet.Initialize()
 
-	testUser := domain.NewUser("grupoesfera", &userService)
+	testUser := domain.NewUser("grupoesfera", "grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
 
 	messages := []string{"This is my first tweetMessage", "This is my second tweetMessage", "This is my third tweetMessage"}
 
@@ -148,8 +167,8 @@ func TestFollowUser(t *testing.T) {
 	userService.Initialize()
 	tweet.Initialize()
 
-	testUser := domain.NewUser("grupoesfera", &userService)
-	testUserToFollow := domain.NewUser("grupoesfera", &userService)
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
+	testUserToFollow := domain.NewUser("federico","federico@gmail.com", "fede", "federico1234", &userService)
 
 	userService.RegisterUser(testUser)
 	userService.RegisterUser(testUserToFollow)
