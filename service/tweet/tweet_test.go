@@ -18,13 +18,16 @@ func TestPublishIsSaved(t *testing.T) {
 	userService.Initialize()
 	tweet.Initialize()
 
-	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
+	userPass := "grupoesfera1234"
+
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", userPass, &userService)
 	text := "This is my first tweetMessage"
 
 	tweetMessage,_ = domain.NewTweet(testUser, text)
 
 	// Operation
 	userService.RegisterUser(testUser)
+	userService.LogIn(testUser.Name, userPass)
 	err := userService.Tweet(testUser, tweetMessage)
 
 	// Validation
@@ -71,7 +74,12 @@ func TestPublishWithoutTextError(t *testing.T) {
 	userService.Initialize()
 	tweet.Initialize()
 
-	testUser := domain.NewUser("caetano","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
+	userPass := "grupoesfera1234"
+
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", userPass, &userService)
+
+	userService.RegisterUser(testUser)
+	userService.LogIn(testUser.Name, userPass)
 
 	tweetMessage,_ := domain.NewTweet(testUser, "")
 
@@ -87,7 +95,7 @@ func TestPublishWithoutTextError(t *testing.T) {
 
 }
 
-func TestPublishWithoutRegisteredUser(t *testing.T) {
+func TestPublishWithoutLoggedInUser(t *testing.T) {
 
 	// Initialization
 	var tweetMessage *domain.Tweet
@@ -96,7 +104,13 @@ func TestPublishWithoutRegisteredUser(t *testing.T) {
 	userService.Initialize()
 	tweet.Initialize()
 
-	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
+	userPass := "grupoesfera1234"
+
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", userPass, &userService)
+
+
+	userService.RegisterUser(testUser)
+
 	text := "This is my first tweet"
 
 	tweetMessage,_ = domain.NewTweet(testUser, text)
@@ -109,8 +123,8 @@ func TestPublishWithoutRegisteredUser(t *testing.T) {
 		t.Errorf("expected error")
 	}
 
-	if err.Error() != "user must be registered in order to publish tweets" {
-		t.Errorf("expected error: testUser must be registered in order to publish tweets, but was: %s", err.Error())
+	if err.Error() != "user must be logged in order to publish tweets" {
+		t.Errorf("expected error: testUser must be logged in order to publish tweets, but was: %s", err.Error())
 	}
 
 }
@@ -124,7 +138,13 @@ func TestGetById(t *testing.T) {
 	userService.Initialize()
 	tweet.Initialize()
 
-	testUser := domain.NewUser("grupoesfera", "grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
+	userPass := "grupoesfera1234"
+
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", userPass, &userService)
+
+
+	userService.RegisterUser(testUser)
+	userService.LogIn(testUser.Name, userPass)
 
 	messages := []string{"This is my first tweetMessage", "This is my second tweetMessage", "This is my third tweetMessage"}
 
@@ -157,28 +177,4 @@ func TestGetById(t *testing.T) {
 		}
 	}
 
-}
-
-func TestFollowUser(t *testing.T) {
-	// Initialization
-
-	var userService user.Service
-
-	userService.Initialize()
-	tweet.Initialize()
-
-	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
-	testUserToFollow := domain.NewUser("federico","federico@gmail.com", "fede", "federico1234", &userService)
-
-	userService.RegisterUser(testUser)
-	userService.RegisterUser(testUserToFollow)
-
-	testUser.Follow(testUserToFollow)
-
-	if testUser.Following[testUserToFollow] == false {
-		t.Errorf("User should be following the second used")
-	}
-	if testUserToFollow.Followers[testUser] == false {
-		t.Errorf("The second user should be followed by the first user")
-	}
 }
