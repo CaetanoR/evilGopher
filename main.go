@@ -11,9 +11,9 @@ func router() http.Handler {
 	r.Use(gin.Recovery())
 	r.GET("/health-check", controller.HealthCkeck)
 
-	r.POST("/users/register", controller.RegisterUser)
-	r.POST("/users/login", nil)
-	r.POST("/users/logout", nil)
+	r.POST("/user/register", controller.RegisterUser)
+	r.POST("/user/login", controller.LoginUser)
+	r.POST("/user/logout", controller.LogoutUser)
 
 
 	return r
