@@ -60,6 +60,45 @@ func (s *Service) LogIn(userName string, password string) error {
 	return nil
 }
 
+func (s *Service) LogOut(userName string, password string) error {
+
+	err, userRemoval := s.removeUser(loggedUsers, userName, password)
+
+	if err != nil {
+		return errors.New(err.Error())
+	}
+	if userRemoval != nil {
+		loggedUsers = userRemoval
+	}
+	return nil
+}
+
+func (s *Service) IsLoggedIn(userName string) bool {
+
+	isLoggedIn := false
+
+	for _, curUser := range loggedUsers {
+		if curUser.Name == userName {
+			isLoggedIn = true
+		}
+	}
+
+	return isLoggedIn
+}
+
+func (s *Service) removeUser(list []*domain.User, userName, password string) (error, []*domain.User, ) {
+
+	for i, curUser := range loggedUsers {
+		if curUser.Name == userName {
+			if !s.CheckHash(password, curUser.Password) {
+				return errors.New("invalid password"), nil
+			}
+			return nil, append(loggedUsers[:i], loggedUsers[i+1:]...)
+		}
+	}
+	return nil, nil
+}
+
 func (s *Service) Exists(userToSearch string, userList []*domain.User) *domain.User {
 	var user *domain.User = nil
 	for _,curUser := range userList {
