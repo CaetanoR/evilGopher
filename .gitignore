@@ -18,3 +18,7 @@
 
 #Jetbrains configs
 .idea/*
+
+#Vendor configs
+vendor/*
+!vendor/vendor.json
