@@ -29,8 +29,14 @@ func (u *User) Follow(user *User) {
 }
 
 func (u *User) PublishTweet(tweetToPublish *Tweet) error {
-
 	err := u.validateUserTweet(tweetToPublish)
+	if err == nil {
+		for _,curTweet := range u.Tweets {
+			if curTweet.Text == tweetToPublish.Text {
+				return errors.New("user can't have duplicated tweets")
+			}
+		}
+	}
 	u.Tweets = append(u.Tweets, tweetToPublish)
 	return err
 }

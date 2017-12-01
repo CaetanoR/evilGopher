@@ -48,6 +48,41 @@ func TestPublishIsSaved(t *testing.T) {
 	}
 }
 
+func TestDuplicatedTweet(t *testing.T) {
+
+	// Initialization
+	var tweetMessage *domain.Tweet
+
+	var userService user.Service
+
+
+	userService.Initialize()
+	tweet.Initialize()
+
+	userPass := "grupoesfera1234"
+
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", userPass, &userService)
+	text := "This is my first tweetMessage"
+
+	tweetMessage,_ = domain.NewTweet(testUser, text)
+
+	// Operation
+	userService.RegisterUser(testUser)
+	userService.LogIn(testUser.Name, userPass)
+	err := userService.Tweet(testUser, tweetMessage)
+	err2 := userService.Tweet(testUser, tweetMessage)
+
+	// Validation
+	if err != nil {
+		t.Errorf("Didn't expect any error, but got: %s", err.Error())
+	}
+
+	if err2.Error() != "user can't have duplicated tweets" {
+		t.Errorf("expected error: user can't have duplicated tweets, but got: %s", err2.Error())
+	}
+
+}
+
 func TestPasswordHash(t *testing.T) {
 
 	// Initialization
