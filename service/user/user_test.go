@@ -72,7 +72,7 @@ func TestService_LogOut(t *testing.T) {
 
 	userPass := "grupoesfera1234"
 
-	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", userPass, &userService)
+	testUser := domain.NewUser("grupoesfera", "grupoesfera@gmail.com", "ge", userPass, &userService)
 
 	err := userService.RegisterUser(testUser)
 
@@ -87,4 +87,27 @@ func TestService_LogOut(t *testing.T) {
 	if userService.IsLoggedIn(testUser.Name) {
 		t.Error("user is still logged in")
 	}
+}
+
+func TestEditUserTweet(t *testing.T) {
+	// Initialization
+	var userService user.Service
+	userService.Initialize()
+
+	tweet.Initialize()
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
+
+	tweetMessage,_ := domain.NewTweet(testUser, "hi Bro!")
+	userService.RegisterUser(testUser)
+	userService.Tweet(testUser, tweetMessage)
+
+	//operation
+	tweetMessage.Text = "Hello bro!"
+	err := userService.EditTweet(testUser, tweetMessage)
+
+	//validation
+	if err != nil {
+		t.Errorf("expected no error")
+	}
+
 }
