@@ -3,10 +3,22 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/evilGopher/controller"
+	"net/http"
 )
 
-func main() {
+
+func router() http.Handler {
 	r := gin.Default()
+	r.Use(gin.Recovery())
 	r.GET("/health-check", controller.HealthCkeck)
-	r.Run() // listen and serve on 0.0.0.0:8080
+
+	return r
+}
+
+func main() {
+	r := &http.Server{
+		Addr:           ":8080",
+		Handler:        router(),
+	}
+	r.ListenAndServe()
 }
