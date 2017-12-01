@@ -5,6 +5,7 @@ import (
 	"github.com/evilGopher/domain"
 	"github.com/evilGopher/service/tweet"
 	"golang.org/x/crypto/bcrypt"
+	"fmt"
 )
 
 var registeredUsers []*domain.User
@@ -35,16 +36,29 @@ func (s *Service) CheckHash(pwd string, hash string) bool {
 func (s *Service) RegisterUser(u *domain.User) error {
 
 	if u.Name == "" {
-		return errors.New("name is required")
+		errors.New("name is required")
+	}
+
+	if u.Email == "" {
+		return errors.New("email is required")
+	}
+
+	if u.Password == "" {
+		return errors.New("password is required")
 	}
 
 	for _, curUser := range registeredUsers {
-		if u.Name == curUser.Name || u.Email == curUser.Email {
+		if u.Name == curUser.Name {
 			return errors.New("user already exists")
+		}
+		if u.Email == curUser.Email {
+			return errors.New("email already exists")
 		}
 	}
 
 	registeredUsers = append(registeredUsers, u)
+
+	fmt.Printf("name: " + u.Name + " with pass: " + u.Password)
 	return nil
 }
 

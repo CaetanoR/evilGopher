@@ -6,11 +6,15 @@ import (
 	"net/http"
 )
 
-
 func router() http.Handler {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.GET("/health-check", controller.HealthCkeck)
+
+	r.POST("/users/register", controller.RegisterUser)
+	r.POST("/users/login", nil)
+	r.POST("/users/logout", nil)
+
 
 	return r
 }
