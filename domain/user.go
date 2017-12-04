@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	"log"
+	"sort"
 )
 
 type User struct {
@@ -61,6 +62,38 @@ func (u *User) RemoveTweet(tweetToRemove *Tweet) error {
 		u.Tweets = append(u.Tweets[:tweetToRemove.Id - 1], u.Tweets[tweetToRemove.Id:]...)
 	}
 	return err
+}
+
+func (u *User) Timeline() (error, []*Tweet) {
+
+	followingTweets := u.getFollowingTweets()
+	var timeline []*Tweet
+	timeline = copyTweets(u.Tweets, timeline)
+	timeline = copyTweets(followingTweets, timeline)
+	sort.Slice(timeline, func(i, j int) bool { return timeline[i].Date.Before(timeline[j].Date)})
+
+	return nil, timeline
+}
+
+func copyTweets(src []*Tweet, dst[]*Tweet) []*Tweet {
+	for _,curTweet := range src {
+		dst = append(dst, curTweet)
+	}
+	return dst
+}
+
+func (u *User) getFollowingTweets() []*Tweet {
+
+	var followingTweets []*Tweet
+
+	for curUser, isFollowing := range u.Following {
+		if isFollowing {
+			followingTweets = copyTweets(followingTweets, curUser.Tweets)
+		}
+	}
+
+	return followingTweets
+
 }
 
 func (u *User)validateIndex(tweet *Tweet) error {
