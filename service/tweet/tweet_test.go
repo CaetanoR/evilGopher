@@ -43,9 +43,6 @@ func TestPublishIsSaved(t *testing.T) {
 			testUser, text, publishedTweet.User, publishedTweet.Text)
 	}
 
-	if publishedTweet.Date == nil {
-		t.Error("Expected date can't be nil")
-	}
 }
 
 func TestDuplicatedTweet(t *testing.T) {

@@ -93,17 +93,68 @@ func TestEditUserTweet(t *testing.T) {
 	// Initialization
 	var userService user.Service
 	userService.Initialize()
-
 	tweet.Initialize()
-	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", "grupoesfera1234", &userService)
+
+	testUserPass := "grupoesfera1234"
+
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", testUserPass, &userService)
 
 	tweetMessage,_ := domain.NewTweet(testUser, "hi Bro!")
 	userService.RegisterUser(testUser)
+	userService.LogIn(testUser.Name, testUserPass)
 	userService.Tweet(testUser, tweetMessage)
 
 	//operation
 	tweetMessage.Text = "Hello bro!"
 	err := userService.EditTweet(testUser, tweetMessage)
+
+	//validation
+	if err != nil {
+		t.Errorf("expected no error, but got: %s", err.Error())
+	}
+
+}
+
+func TestUserTimeline(t *testing.T) {
+	// Initialization
+	var userService user.Service
+	userService.Initialize()
+
+	testUserPass := "grupoesfera1234"
+	testUserFollowedPass := "caetano1234"
+
+	testUserTweet := "hi Bro!"
+	testUserFollowedTweet := "good morning!"
+
+	tweet.Initialize()
+	testUser := domain.NewUser("grupoesfera","grupoesfera@gmail.com", "ge", testUserPass, &userService)
+	testUserFollowed := domain.NewUser("caetano","caetano@gmail.com", "cae", testUserFollowedPass, &userService)
+
+	testUserTweetMessage,_ := domain.NewTweet(testUser, testUserTweet)
+	testUserFollowedTweetMessage,_ := domain.NewTweet(testUser, testUserFollowedTweet)
+
+	userService.RegisterUser(testUser)
+	userService.RegisterUser(testUserFollowed)
+
+	userService.LogIn(testUser.Name, testUserPass)
+	userService.LogIn(testUserFollowed.Name, testUserFollowedPass)
+
+
+	userService.Tweet(testUserFollowed, testUserFollowedTweetMessage)
+	userService.Tweet(testUser, testUserTweetMessage)
+
+	testUser.Follow(testUserFollowed)
+
+	//operation
+	err, timeline := testUser.Timeline()
+
+	if len(timeline) == 0 {
+		t.Errorf("expected values")
+	}
+
+	if timeline[0].Text != testUserTweet && timeline[1].Text != testUserFollowedTweet {
+		t.Error("tweets aren't ordered")
+	}
 
 	//validation
 	if err != nil {
